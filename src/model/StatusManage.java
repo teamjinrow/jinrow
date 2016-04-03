@@ -39,7 +39,7 @@ public final class StatusManage {
 		
 		HashMap<String, String> userStatus = new HashMap<String, String>();
 		userStatus.put("role", roleName);
-		userStatus.put("deadFlag", "0"); //0:生存　１：死亡
+		userStatus.put("deadFlag", "生存"); 
 		
 		statusMap.put(userName, userStatus);
 		
@@ -53,4 +53,10 @@ public final class StatusManage {
 		return userStatus;
 	}
 	
+	/**
+	 * ユーザ情報を保持するステータスマップを返します。
+	 */
+	public static HashMap<String, HashMap<String, String>> getGameStatus(){
+		return statusMap;
+	}
 }

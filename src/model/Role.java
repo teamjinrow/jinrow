@@ -4,6 +4,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * 役割を割り当てるためのクラスです。
+ * 
+ * @author tachibanayuuichirou
+ *
+ */
 public final class Role {
 	
 	/**

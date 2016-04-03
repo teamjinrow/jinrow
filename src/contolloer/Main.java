@@ -40,21 +40,13 @@ public class Main extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		req.setCharacterEncoding("utf-8");
-		String userName = req.getParameter("user_name");
-		HashMap<String, String> userStatus = StatusManage.getUserStatus(userName);
-		req.setAttribute("user_name", userName);
-		req.setAttribute("role_name", userStatus.get("role"));
-		if (userStatus.get("deadFlag") == "0") {
-			req.setAttribute("status", "生存");
-	    }
-		else {
-			req.setAttribute("status", "死亡");
-		}
+		// ゲームステータスを取得します
+		HashMap<String, HashMap<String, String>> statusMap = StatusManage.getGameStatus();
+		req.setAttribute("status_map", statusMap);
 		
+		//メイン画面に遷移
 		RequestDispatcher rd = req.getRequestDispatcher("/main.jsp");
 		rd.forward(req, res);
-		
 		
 	}
 

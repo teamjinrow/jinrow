@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,10 +7,9 @@
 <title>役割画面</title>
 </head>
 <body>
-	<p>ようこそ<%= request.getAttribute("user_name")%>さん</p>
-	<p>あなたの役割は<%= request.getAttribute("role_name") %>です。</p>
+	<p>ようこそ、<c:out value="${user_name}"/>さん</p>
+	<p>あなたの役割は<c:out value="${role_name}"/>です。</p>
 	<form action="Main" method="post">
-	    <input type="hidden" name="user_name" value="<%= request.getAttribute("user_name")%>">
 		<input type="submit" value="ゲームスタート"/>
 	</form>
 </body>
