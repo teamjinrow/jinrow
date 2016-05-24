@@ -1,8 +1,9 @@
 package contolloer;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 
+import model.Player;
 import model.StatusManage;
 
 import javax.servlet.RequestDispatcher;
@@ -39,13 +40,54 @@ public class Main extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		// ゲームステータスを取得します
-		HashMap<String, HashMap<String, String>> statusMap = StatusManage.getGameStatus();
-		req.setAttribute("status_map", statusMap);
 		
+		req.setCharacterEncoding("utf-8");
+		
+		//　プレイヤー情報を取得します
+		String playerName = req.getParameter("player_name");
+		Player player = StatusManage.getPlayer(playerName);
+		req.setAttribute("player_name", playerName);
+		
+		// プレイヤーリストを取得します
+		ArrayList<Player> playerList = StatusManage.getPlayerList();
+		req.setAttribute("player_list", playerList);
+		
+		//　投票がある場合は、投票処理を行う
+		if ( req.getParameter("voted_player") != null) {
+			
+			Player votedPlayer = StatusManage.getPlayer(req.getParameter("voted_player"));
+			player.getRole().vote(votedPlayer);
+			
+		}
+		
+		//　夜のアクションがある場合は、アクション処理を行う
+		if ( req.getParameter("target_player") != null) {
+			
+			Player targetPlayer = StatusManage.getPlayer(req.getParameter("target_player"));
+			player.getRole().synchAction(player, targetPlayer);
+			
+		}
+				
+		//表示するメッセージを設定
+		req.setAttribute("message", StatusManage.getMessage());
+		
+		//表示するメッセージを設定
+		req.setAttribute("result", StatusManage.getGameResultMessage());
+		
+		//ターンを設定
+		req.setAttribute("turn", StatusManage.getTurn());
+				
+		//昼または夜の設定
+		req.setAttribute("day_or_night", StatusManage.isDayOrNight());
+
+		RequestDispatcher rd = null;
+		//死亡フラグがonならゲームオーバー画面に遷移
+		if (player.isDeadFlag()) { 
+			rd = req.getRequestDispatcher("/view/gameover.jsp");
+			rd.forward(req, res);
+		}
 		//メイン画面に遷移
-		RequestDispatcher rd = req.getRequestDispatcher("/main.jsp");
+		rd = req.getRequestDispatcher("/view/main.jsp");
 		rd.forward(req, res);
 		
 	}

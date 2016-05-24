@@ -1,7 +1,9 @@
 package contolloer;
 
 import java.io.IOException;
-import model.Role;
+
+import model.Player;
+import model.AssignRole;
 import model.StatusManage;
 
 import javax.servlet.RequestDispatcher;
@@ -38,16 +40,18 @@ public class Login extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		req.setCharacterEncoding("utf-8");
-		String userName = req.getParameter("user_name");
-		Role assignRole = new Role();
-		String roleName = assignRole.assignRole();
-	    StatusManage.addUser(userName, roleName);
 		
-		req.setAttribute("user_name", userName);
-		req.setAttribute("role_name", roleName);
-		RequestDispatcher rd = req.getRequestDispatcher("/role.jsp");
+		req.setCharacterEncoding("utf-8");
+		
+		
+		Player player = new Player(req.getParameter("player_name"));
+		AssignRole.assignRole(player);
+	    StatusManage.addUser(player);
+	    System.out.println(req.getParameter("player_name") + player.getRole().getRoleName());
+		
+		req.setAttribute("player", player);
+		
+		RequestDispatcher rd = req.getRequestDispatcher("/view/role.jsp");
 		rd.forward(req,res);
 
 	}

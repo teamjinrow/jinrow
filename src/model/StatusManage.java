@@ -1,62 +1,441 @@
 package model;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * ゲームステータスのデータ保存用クラスです。
- * ゲーム全体のステータスをキー：ユーザ名、バリュー：ユーザーステータスのマップで保持します。
- * こんなんでデータを保持できるか分かんないんで暫定クラスです。
- * @author tachibanayuuichirou
+ * プレイヤーのステータスを一元管理します
+ * @author Y.Tachibana
  */
 public final class StatusManage {
 	
-	private static HashMap<String, HashMap<String, String>> statusMap;
+	
+	/**
+	 * プレイヤーを一元管理するリスト
+	 * @type ArrayList<Player>
+	 */
+	private static ArrayList<Player> playerList;
+	
+	
+	/**
+	 * ターン数を表すプロパティ
+	 * 昼と夜合わせて１ターン
+	 * @type int
+	 */
+	private static int turn = 1;
+	
+	
+	/**
+	 * 昼の行動、夜の行動を区別するためのプロパティ
+	 * 昼：false
+	 * 夜：true
+	 * @type boolean
+	 */
+	private static boolean dayOrNight = false;
+
+	
+	/**
+	 * とりあえず5人プレイ用の配列用意
+	 */
+	private static Role[] arrRole  = {
+			new Villager(),
+			new Villager(),
+			new Villager(),
+			new Werewolf(),
+			new Werewolf(),
+	}; 
+	
+	
+	/**
+	 * システムメッセージ
+	 * @type String
+	 */
+	private static String message = "";
+	
+	
+	/**
+	 * ゲーム結果メッセージ
+	 * @type String
+	 */
+	private static String gameResultMessage = "";
+	
+	
+	/**
+	 * 全プレイヤーの投票数
+	 */
+	private static volatile int sizeVote;
+
+	
+	/**
+	 * 全プレイヤーのアクション数
+	 */
+	private static volatile int sizeAction;
+	
+	
+	/**
+	 * 生存している人狼の数 
+	 */
+	private static int sizeAliveWerewolf = 0;
+	
+	
+	/**
+	 * 生存している人間の数
+	 */
+	private static int sizeAliveHuman = 0;
+	
 	
 	/**
 	 * このクラスはインスタンス化を想定していません。
 	 * そのため、Private修飾子を用いて外部からのインスタンス化を禁じています。
 	 * また、本クラス内で呼び出した場合はアサーションエラーをスローします。
-	 * 分からなければ、無視してもらって構いません。
 	 */
 	private StatusManage() {
 		throw new AssertionError();
 	}
+
 	
 	/**
-	 * status初期化子を用いて、ゲームステータス管理マップのインスタンスを一度のみ生成します。
+	 * static初期化子を用いて、プレイヤーリストのインスタンスを一度のみ生成します。
 	 */
 	static {
-		 statusMap = new HashMap<String, HashMap<String, String>>();
+		 playerList = new ArrayList<Player>();
 	}
 	
+	
 	/**
-	 * ユーザーのステータス管理マップを作成し、ステータスマップとマッピングします。
-	 * ステータス管理マップには、役職、死亡フラグ等のゲーム状況を保持します。
-	 * @param userName
-	 * @param roleName
+	 * プレイヤーオブジェクトをプレイヤーリストに追加します。
+	 * @param player
 	 */
-	public static void addUser(String userName, String roleName) {
+	public static void addUser(Player player) {
 		
-		HashMap<String, String> userStatus = new HashMap<String, String>();
-		userStatus.put("role", roleName);
-		userStatus.put("deadFlag", "生存"); 
-		
-		statusMap.put(userName, userStatus);
+		playerList.add(player);
 		
 	}
 	
+	
 	/**
-	 * ユーザ名を元に、ユーザーステータスマップを返します。
+	 * 
+	 * @return playerList
 	 */
-	public static HashMap<String, String> getUserStatus(String userName){
-		HashMap<String, String> userStatus = statusMap.get(userName);
-		return userStatus;
+	public static ArrayList<Player> getPlayerList() {
+		return playerList;
+	}
+	
+	
+	/**
+	 * プレイヤーリストよりプレイヤー情報を返します。
+	 * @return Player
+	 */
+	public static Player getPlayer(String playerName){
+		for (Player player : playerList) {
+			if (player.getPlayerName().equals(playerName)) {
+				return player;
+			}
+		}
+		Player player = null;
+		return player;
+	}
+	
+	
+	/**
+	 *　各プレイヤーの投票結果を集計し、一番票の多いプレイヤーの死亡フラグをONにします。
+	 *　戻り値として、処刑されたプレイヤーのインスタンスを返します。
+	 * [ToDo]投票数が同じ場合には再投票が実施されるように修正
+	 * @returnPlayer
+	 */
+	public static Player voteResult(){
+		
+		Player executedPlayer = null;
+		int maxVotesCast = 0;
+		for (Player player : playerList) 
+			if (player.isDeadFlag() == false && maxVotesCast < player.getVotesCast()) {
+				maxVotesCast = player.getVotesCast();
+				executedPlayer = player;
+			} else 
+			if (player.isDeadFlag() == false && maxVotesCast == player.getVotesCast()) {
+				
+			}
+		
+		executedPlayer.setDeadFlag(true);
+		setMessage(executedPlayer.getPlayerName() + "さんが処刑されました。");
+		
+		return executedPlayer;
+		
+	}
+	
+	
+	/**
+	 *　各プレイヤーの投票結果を集計し、一番票の多いプレイヤーの死亡フラグをONにします。
+	 *　戻り値として、殺害されたプレイヤーのインスタンスを返します。
+	 * @returnPlayer
+	 */
+	public static Player actionResult(){
+		
+		Player killedPlayer = null;
+		int maxVotesCast = 0;
+		for (Player player : playerList) 
+			if (player.isDeadFlag() == false && maxVotesCast < player.getTargetByWerewolf()) {
+				maxVotesCast = player.getVotesCast();
+				killedPlayer = player;
+			} else 
+			if (player.isDeadFlag() == false && maxVotesCast == player.getTargetByWerewolf()) {
+				
+			}
+		
+		if (killedPlayer != null) { 
+			killedPlayer.setDeadFlag(true);
+			setMessage(killedPlayer.getPlayerName() + "さんが殺害されました。");
+		} else {
+			setMessage("何事もなく朝を迎えました。");
+		}
+		
+		return killedPlayer;
+		
+	}
+	
+	
+	/**
+	 * 全プレイヤーの投票数及び投票結果を初期化します。
+	 * 
+	 */
+	public static void resetVotesCastWithAllPlayer() {
+		
+		StatusManage.sizeVote = 0;
+		for (Player player : playerList) 
+			player.resetVotesCast();
+		
+	}
+	
+	
+	/**
+	 * 全プレイヤーの投票数及び投票結果を初期化します。
+	 * 
+	 */
+	public static void resetTargetByWolfWithAllPlayer() {
+		
+		StatusManage.sizeAction = 0;
+		for (Player player : playerList) 
+			player.resetTargetByWerewolf();
+		
+	}
+	
+	
+	/**
+	 * ゲームの勝敗判定を行います。
+	 * 判定条件
+	 * ・人狼が１匹もいない場合：村人陣営の勝利
+	 * ・人狼の数が人間の数以上になった場合：人狼陣営の勝利
+	 * ・上記の勝利条件を満たしたタイミングで、妖狐が生存している場合：妖狐陣営の勝利
+	 * @return boolean
+	 */
+	public static boolean gameCheck() {
+		
+		//人間と人狼の数を集計
+		countAliveRace();
+		
+		boolean isGameEnd = false;
+		if (sizeAliveWerewolf == 0) {
+			//村人の勝利（仮）
+			isGameEnd = true;
+			StatusManage.setGameResultMessage("村人の勝利です。");
+		}
+		
+		if (sizeAliveHuman <= sizeAliveWerewolf) {
+			//人狼の勝利（仮）
+			isGameEnd = true;
+			StatusManage.setGameResultMessage("人狼の勝利です。");
+		}
+		
+		if (isGameEnd && isAliveFox()) {
+			//妖狐の勝利
+			StatusManage.setGameResultMessage("妖狐の勝利です。");
+		}
+		
+		return isGameEnd;
+		
+	}
+	
+	
+	/**
+	 * 生存しているプレイヤーのサイズを返します。
+	 * @return　int
+	 */
+	public static int sizeAlivePlayer() {
+		
+		int sizeAlivePlayer = 0;
+		for (Player player:playerList) 
+			if (player.isDeadFlag() == false)
+				sizeAlivePlayer += 1; 
+		
+		return sizeAlivePlayer;
+		
 	}
 	
 	/**
-	 * ユーザ情報を保持するステータスマップを返します。
+	 * 生存している人種の数を計算し、プロパティに結果を保持します。
 	 */
-	public static HashMap<String, HashMap<String, String>> getGameStatus(){
-		return statusMap;
+	private static void countAliveRace() {
+		
+		// プロパティの初期化
+		sizeAliveHuman = 0;
+		sizeAliveWerewolf = 0;
+		
+		for (Player player: playerList) {
+			if (player.isDeadFlag()) 
+				continue;
+			switch (player.getRole().getRace()) {
+			case HUMAN:
+				sizeAliveHuman += 1;
+				break;
+			case WEREWOLF:
+				sizeAliveWerewolf += 1;
+				break;
+			}
+		}
 	}
+	
+	
+	/**
+	 * 妖狐が生存しているかどうかを確認する
+	 * @return　boolean 生存ならばtrue 死亡ならばfalse
+	 */
+	private static boolean isAliveFox() {
+		for (Player player:playerList) {
+			if (player.getRole().getRoleName() == "Fox" && player.isDeadFlag() == false) {
+				return true;
+			}
+		}
+		
+		return false;
+		
+	}
+	
+	
+	/**
+	 * メッセージのゲッター
+	 * @return　String メッセージ
+	 */
+	public static String getMessage() {
+		return message;
+	}
+
+	
+	/**
+	 * メッセージのセッター
+	 * @param message
+	 */
+	public static void setMessage(String message) {
+		StatusManage.message = message;
+	}
+
+	
+	/**
+	 * 投票総数を返します。
+	 * @return　sizeVote
+	 */
+	public static int getSizeVote() {
+		return sizeVote;
+	}
+
+	
+	/**
+	 * 投票総数を＋１します。
+	 */
+	public static void addSizeVote() {
+		StatusManage.sizeVote += 1;
+	}
+
+	
+	/**
+	 *  役職配列を返します。
+	 * @return arrRole
+	 */
+	public static Role[] getArrRole() {
+		return arrRole;
+	}
+
+	
+	/**
+	 * 役職配列をセットします。
+	 * @param arrRole
+	 */
+	public static void setArrRole(Role[] arrRole) {
+		StatusManage.arrRole = arrRole;
+	}
+
+	
+	/**
+	 * ゲーム決着時のメッセージを取得します。
+	 * @return
+	 */
+	public static String getGameResultMessage() {
+		return gameResultMessage;
+	}
+
+	
+	/**
+	 * ゲーム決着時のメッセージをセットします。
+	 * @param gameResultMessage
+	 */
+	public static void setGameResultMessage(String gameResultMessage) {
+		StatusManage.gameResultMessage = gameResultMessage;
+	}
+
+	
+	/**
+	 * ターン数を取得します。
+	 * @return turn
+	 */
+	public static int getTurn() {
+		return turn;
+	}
+
+	
+	/**
+	 * ターン数を＋１します。
+	 * @param turn
+	 */
+	public static void addTurn() {
+		StatusManage.turn += 1;
+	}
+
+	
+	/**
+	 * 夜か昼かをブール値で返します。
+	 * false:昼
+	 * true:夜
+	 * @return
+	 */
+	public static boolean isDayOrNight() {
+		return dayOrNight;
+	}
+
+	
+	/**
+	 * 夜か昼かをブール値で設定します。
+	 * false:昼
+	 * true:夜
+	 * @param dayOrNight
+	 */
+	public static void setDayOrNight(boolean dayOrNight) {
+		StatusManage.dayOrNight = dayOrNight;
+	}
+
+	
+	/**
+	 * 夜に行動したプレイヤーの総数を返します。
+	 * @return
+	 */
+	public static int getSizeAction() {
+		return sizeAction;
+	}
+
+	
+	/**
+	 * 夜に行動したプレイヤー総数を＋１します。
+	 */
+	public static void addSizeAction() {
+		StatusManage.sizeAction += 1;
+	}
+
 }

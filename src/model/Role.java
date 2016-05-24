@@ -1,38 +1,65 @@
 package model;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 /**
- * 役割を割り当てるためのクラスです。
- * 
- * @author tachibanayuuichirou
+ * 役職インターフェースです。
+ * 役職クラスは全てこのインタフェースを実装していなければいけません。
+ * 具体的には、AbstractRoleにこのインタフェースを実装し、継承してください、
+ * @author Y.tachibana
  *
  */
-public final class Role {
+public interface Role {
+	
 	
 	/**
-	 * とりあえず３人プレイ用の配列用意
+	 * 陣営をまとめた定数
+	 * 	VILLAGE:村人　WEREWOLF:人狼　FOX:妖狐
+	 * @type Team
 	 */
-	private String[] arrRole  = {
-			"市民",
-			"市民",
-			"人狼"
-	}; 
+	enum Team { VILLAGER,WEREWOLF,FOX }
+	
 	
 	/**
-	 * 役割を割りあてるメソッドです。
-	 * 役割を保持する配列から無作為に役割を１つ取得し、その結果を返します。
-	 * [todo]一人は人狼に選ばれないといけないので、未完成。手抜きさーせん。
+	 * 占われた際に判定される結果をまとめた定数
+	 * @type Race
+	 *
 	 */
-	public String assignRole() {
-		
-		List<String> list = Arrays.asList(arrRole);
-		Collections.shuffle(list);
-		arrRole = (String[])list.toArray(new String[0]);
-
-		return arrRole[0];
-	}
+	enum Race { HUMAN, WEREWOLF }
+	
+	
+	/**
+	 * 人狼だと疑われるプレイヤーに票を入れる投票メソッドです。
+	 */
+	void vote(Player votedPlayer);
+	
+	
+	/**
+	 * 夜に行うアクションメソッドです。
+	 */
+	void synchAction(Player player, Player targetPlayer);
+	
+	
+	/**
+	 * 夜に行うアクションメソッドです。
+	 */
+	void act(Player targetPlayer);
+	
+	
+	/**
+	 * 役職の陣営を返すメソッド
+	 */
+	Team getTeam();
+	
+	
+	/**
+	 * 役職の人種を返すメソッド
+	 */
+	Race getRace();
+	
+	
+	/**
+	 * 役職名を返すメソッド
+	 */
+	String getRoleName();
+	
 
 }

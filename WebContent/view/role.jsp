@@ -7,9 +7,10 @@
 <title>役割画面</title>
 </head>
 <body>
-	<p>ようこそ、<c:out value="${user_name}"/>さん</p>
-	<p>あなたの役割は<c:out value="${role_name}"/>です。</p>
+	<p>ようこそ、<c:out value="${player.playerName}"/>さん</p>
+	<p>あなたの役割は<c:out value="${player.role.roleName}"/>です。</p>
 	<form action="Main" method="post">
+		<input type="hidden" name="player_name" value="${player.playerName}"/>
 		<input type="submit" value="ゲームスタート"/>
 	</form>
 </body>
