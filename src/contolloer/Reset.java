@@ -2,10 +2,6 @@ package contolloer;
 
 import java.io.IOException;
 
-import model.AssignRole;
-import model.Player;
-import model.StatusManage;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,17 +9,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import model.StatusManage;
+
 /**
- * Servlet implementation class Login
+ * Servlet implementation class Reset
  */
-@WebServlet("/Login")
-public class Login extends HttpServlet {
+@WebServlet("/Reset")
+public class Reset extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Login() {
+    public Reset() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -40,20 +38,12 @@ public class Login extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		//ゲームステータスを初期化
+		StatusManage.reset();
 		
-		req.setCharacterEncoding("utf-8");
+		RequestDispatcher rd = req.getRequestDispatcher("/index.html");
+		rd.forward(req, res);
 		
-		
-		Player player = new Player(req.getParameter("player_name"));
-		AssignRole.assignRole(player);
-	    StatusManage.addUser(player);
-	    System.out.println(req.getParameter("player_name") + player.getRole().getRoleName());
-		
-		req.setAttribute("player", player);
-		
-		RequestDispatcher rd = req.getRequestDispatcher("/view/role.jsp");
-		rd.forward(req,res);
-
 	}
 
 }

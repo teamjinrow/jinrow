@@ -46,7 +46,7 @@ public class Main extends HttpServlet {
 		//　プレイヤー情報を取得します
 		String playerName = req.getParameter("player_name");
 		Player player = StatusManage.getPlayer(playerName);
-		req.setAttribute("player_name", playerName);
+		req.setAttribute("main_player", player);
 		
 		// プレイヤーリストを取得します
 		ArrayList<Player> playerList = StatusManage.getPlayerList();
@@ -81,13 +81,19 @@ public class Main extends HttpServlet {
 		req.setAttribute("day_or_night", StatusManage.isDayOrNight());
 
 		RequestDispatcher rd = null;
-		//死亡フラグがonならゲームオーバー画面に遷移
-		if (player.isDeadFlag()) { 
-			rd = req.getRequestDispatcher("/view/gameover.jsp");
-			rd.forward(req, res);
-		}
+		
+		
 		//メイン画面に遷移
 		rd = req.getRequestDispatcher("/view/main.jsp");
+		
+		//死亡フラグがonならゲームオーバー画面に遷移
+		if (player.isDeadFlag()) 
+			rd = req.getRequestDispatcher("/view/gameover.jsp");
+		
+		//ゲーム結果メッセージが空欄でない場合は、結果画面に遷移
+		if (StatusManage.getGameResultMessage() != null && StatusManage.getGameResultMessage().length() != 0) 
+			rd = req.getRequestDispatcher("/view/result.jsp");
+		
 		rd.forward(req, res);
 		
 	}

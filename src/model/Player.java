@@ -117,7 +117,7 @@ public final class Player {
 	/**
 	 * 投票数をプラス１します。
 	 */
-	public void addVotesCast() {
+	public void incrementVotesCast() {
 		votesCast += 1;
 	}
 	
@@ -142,7 +142,7 @@ public final class Player {
 	/**
 	 * 人狼から狙われている数を＋１します。
 	 */
-	public void addTargetByWerewolf() {
+	public void incrementTargetByWerewolf() {
 		this.targetByWerewolf += 1;
 	}
 	

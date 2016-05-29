@@ -3,7 +3,6 @@ package model;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * 役割を割り当てるためのクラスです。
@@ -14,11 +13,28 @@ import java.util.List;
 public enum AssignRole {
 	INSTANCE;
 	
+	/**
+	 * デフォルトの役職配列
+	 */
+	private static Role[] arrRole  = {
+			new Villager(),
+			new Villager(),
+			new Villager(),
+			new Werewolf(),
+			new Werewolf(),
+	}; 
+	
 	
 	/**
-	 * 役職を一時的に保持するリスト
+	 * ゲームプレイ時の役職をまとめたリスト
 	 */
-	private static List<Role> list;
+	private static LinkedList<Role> roleList;
+	
+	
+	/**
+	 * ゲームプレイ時点の役職リストのサイズ（すなわちプレイヤーの参加人数）
+	 */
+	private static int sizeRole;
 	
 	
 	/**
@@ -32,7 +48,8 @@ public enum AssignRole {
 	 * インスタンス化と同時に役職の配列をリストで取得
 	 */
 	static {
-		list = new LinkedList<Role>(Arrays.asList(StatusManage.getArrRole()));
+		roleList = new LinkedList<Role>(Arrays.asList(arrRole));
+		sizeRole = roleList.size(); 
 	}
 	
 	
@@ -42,21 +59,21 @@ public enum AssignRole {
 	 */
 	public static void assignRole(Player player) {
 		
-		synchronized (StatusManage.getPlayerList()) {
-			Collections.shuffle(list);
-			Role assignedRole = list.remove(0);
+		synchronized (roleList) {
+			Collections.shuffle(roleList);
+			Role assignedRole = roleList.remove(0);
 			player.setRole(assignedRole);
-			addCountAssignedRole();
+			countAssignedRole += 1;
 			
 			//　プレイヤー全員の役職が決まるまで待機
-			while (StatusManage.getArrRole().length != countAssignedRole) 
+			while (sizeRole != countAssignedRole) 
 				try {
-					StatusManage.getPlayerList().wait();
+					roleList.wait();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			StatusManage.getPlayerList().notifyAll();
+			roleList.notifyAll();
 					
 		}
 
@@ -64,10 +81,77 @@ public enum AssignRole {
 
 	
 	/**
-	 * プレイヤーに割り当てらてた役職数を＋１します。
+	 * 役職リストのゲッター
+	 * @return roleList
 	 */
-	public static void addCountAssignedRole() {
-		AssignRole.countAssignedRole += 1;
+	public static LinkedList<Role> getRolelist() {
+		return roleList;
 	}
-
+	
+	/**
+	 * 役職リストを設定します。
+	 * リストを初期化した上で、新たな役職をリストに設定します。
+	 * @param sizeVillager
+	 * @param sizeWerewolf
+	 * @return roleList
+	 */
+	public static LinkedList<Role> setRoleList(int sizeVillager, int sizeWerewolf) {
+		//役職リストを初期化
+		roleList.clear();
+		countAssignedRole = 0;
+		addVillger(sizeVillager);
+		addWerewolf(sizeWerewolf);
+		sizeRole = roleList.size();
+		return roleList;
+	}
+	
+	
+	/**
+	 * 役職リストに村人を追加します。
+	 */
+	private static void addVillger(int sizeVillager) {
+		for (int i = 0;i < sizeVillager;i++) {
+			roleList.add(new Villager());
+		}
+	}
+	
+	
+	/**
+	 * 役職リストに人狼を追加します。
+	 */
+	private static void addWerewolf(int sizeWerewolf) {
+		for (int i = 0;i < sizeWerewolf;i++) {
+			roleList.add(new Werewolf());
+		}
+	}
+	
+	
+	/**
+	 * 役職リストの人狼の数を返します
+	 */
+	public static int getSizeVillager() {
+		int sizeVillager = 0;
+		for (Role role: roleList)
+			if (role.getRoleName().equals("Villager"))
+				sizeVillager ++;
+			
+		return sizeVillager;
+		
+	}
+	
+	
+	/**
+	 * 役職リストの人狼の数を返します
+	 */
+	public static int getSizeWerewolf() {
+		int sizeWerewolf = 0;
+		for (Role role: roleList)
+			if (role.getRoleName().equals("Werewolf"))
+				sizeWerewolf ++;
+			
+		return sizeWerewolf;
+		
+	}
+	
+	
 }

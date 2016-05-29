@@ -35,18 +35,6 @@ public final class StatusManage {
 
 	
 	/**
-	 * とりあえず5人プレイ用の配列用意
-	 */
-	private static Role[] arrRole  = {
-			new Villager(),
-			new Villager(),
-			new Villager(),
-			new Werewolf(),
-			new Werewolf(),
-	}; 
-	
-	
-	/**
 	 * システムメッセージ
 	 * @type String
 	 */
@@ -110,6 +98,22 @@ public final class StatusManage {
 		
 		playerList.add(player);
 		
+	}
+
+	
+	/**
+	 * ゲームステータスを初期化します。
+	 */
+	public static void reset() {
+		playerList = new ArrayList<Player>();
+		turn = 1;
+		dayOrNight = false;
+		message = "";
+		gameResultMessage = "";
+		sizeVote = 0;
+		sizeAction = 0;
+		sizeAliveWerewolf = 0;
+		sizeAliveHuman = 0;
 	}
 	
 	
@@ -341,26 +345,8 @@ public final class StatusManage {
 	/**
 	 * 投票総数を＋１します。
 	 */
-	public static void addSizeVote() {
+	public static void incrementSizeVote() {
 		StatusManage.sizeVote += 1;
-	}
-
-	
-	/**
-	 *  役職配列を返します。
-	 * @return arrRole
-	 */
-	public static Role[] getArrRole() {
-		return arrRole;
-	}
-
-	
-	/**
-	 * 役職配列をセットします。
-	 * @param arrRole
-	 */
-	public static void setArrRole(Role[] arrRole) {
-		StatusManage.arrRole = arrRole;
 	}
 
 	
@@ -395,7 +381,7 @@ public final class StatusManage {
 	 * ターン数を＋１します。
 	 * @param turn
 	 */
-	public static void addTurn() {
+	public static void incrementTurn() {
 		StatusManage.turn += 1;
 	}
 
@@ -434,7 +420,7 @@ public final class StatusManage {
 	/**
 	 * 夜に行動したプレイヤー総数を＋１します。
 	 */
-	public static void addSizeAction() {
+	public static void incrementSizeAction() {
 		StatusManage.sizeAction += 1;
 	}
 

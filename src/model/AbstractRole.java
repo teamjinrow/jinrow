@@ -21,8 +21,8 @@ abstract class AbstractRole implements Role{
 		int sizeAlivePlayer = StatusManage.sizeAlivePlayer();
 		synchronized(StatusManage.getPlayerList()) {
 			
-			votedPlayer.addVotesCast();
-			StatusManage.addSizeVote();
+			votedPlayer.incrementVotesCast();
+			StatusManage.incrementSizeVote();
 			
 			// 投票が最後のプレイヤーは、投票結果の処理等の各種メソッドを呼び出します。
 			if (StatusManage.getSizeVote() == sizeAlivePlayer) {
@@ -63,7 +63,7 @@ abstract class AbstractRole implements Role{
 		int sizeAlivePlayer = StatusManage.sizeAlivePlayer();
 		synchronized(StatusManage.getPlayerList()) {
 			player.getRole().act(targetPlayer);
-			StatusManage.addSizeAction();
+			StatusManage.incrementSizeAction();
 			
 			// 行動が最後のプレイヤーは、アクション結果の処理等の各種メソッドを呼び出します。
 			if (StatusManage.getSizeAction() == sizeAlivePlayer) {
@@ -72,7 +72,7 @@ abstract class AbstractRole implements Role{
 				// 夜から昼に変更します
 				StatusManage.setDayOrNight(false);
 				//　ターンを進めます
-				StatusManage.addTurn();
+				StatusManage.incrementTurn();
 				// 勝利判定を行います
 				StatusManage.gameCheck();
 			}

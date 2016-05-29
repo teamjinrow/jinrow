@@ -3,11 +3,12 @@ package model;
 /**
  * 役職インターフェースです。
  * 役職クラスは全てこのインタフェースを実装していなければいけません。
- * 具体的には、AbstractRoleにこのインタフェースを実装し、継承してください、
+ * 具体的には、AbstractRoleにこのインタフェースを実装し、実装後のAbstractRoleを継承してください。
  * @author Y.tachibana
  *
  */
 public interface Role {
+	
 	
 	
 	/**

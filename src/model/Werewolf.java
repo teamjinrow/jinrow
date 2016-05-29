@@ -54,7 +54,7 @@ final class Werewolf extends AbstractRole {
 	 */
 	public void act(Player targetPlayer) {
 		// 殺害候補に投票
-		targetPlayer.addVotesCast();
+		targetPlayer.incrementVotesCast();
 	};
 
 	
