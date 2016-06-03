@@ -56,7 +56,8 @@ public class Main extends HttpServlet {
 		if ( req.getParameter("voted_player") != null) {
 			
 			Player votedPlayer = StatusManage.getPlayer(req.getParameter("voted_player"));
-			player.getRole().vote(votedPlayer);
+			StatusManage.getVoteLogic().vote(votedPlayer);
+			StatusManage.initVoteLogic();
 			
 		}
 		
@@ -64,7 +65,9 @@ public class Main extends HttpServlet {
 		if ( req.getParameter("target_player") != null) {
 			
 			Player targetPlayer = StatusManage.getPlayer(req.getParameter("target_player"));
-			player.getRole().synchAction(player, targetPlayer);
+			
+			StatusManage.getActionLogic().action(player, targetPlayer);
+			StatusManage.initActionLogic();
 			
 		}
 				

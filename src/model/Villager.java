@@ -6,13 +6,7 @@ package model;
  * @author Y.tachibana
  *
  */
-final class Villager extends AbstractRole {
-	
-	
-	/**
-	 * 役職名：村人
-	 */
-	private String roleName = "Villager";
+final class Villager implements Role {
 	
 	
 	/**
@@ -27,19 +21,22 @@ final class Villager extends AbstractRole {
 	}
 	
 	
-	@Override
+	/**
+	 * 占い師に占われた場合に判別する人種を返します。人種には以下の２つがあります。
+	 * 人間、人狼
+	 * このメソッドは人間を返します。
+	 * @return Race.HUMAN
+	 */
 	public Race getRace() {
 		return Race.HUMAN;
 	}
 
 	
-	public String getRoleName() {
-		return roleName;
-	}
-
-	
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
+	/**
+	 * 役職名を返します。
+	 */
+	public RoleName getRoleName() {
+		return RoleName.VILLAGER;
 	}
 
 

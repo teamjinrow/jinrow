@@ -34,7 +34,7 @@
 	       　<input type="submit" value="この人物に投票する"/>
 	   　　</c:if>
 	      <c:if test="${day_or_night == true &&
-	                  !(main_player.role.roleName == 'Werewolf' && player.role.roleName == 'Werewolf') }">
+	                  !(main_player.role.roleName == WEREWOLF && player.role.roleName == WEREWOLF) }">
 	       　<input type="submit" value="アクション"/>
 	   　　</c:if>
 	   </c:if>

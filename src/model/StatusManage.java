@@ -2,6 +2,8 @@ package model;
 
 import java.util.ArrayList;
 
+import model.Role.RoleName;
+
 /**
  * ゲームステータスのデータ保存用クラスです。
  * プレイヤーのステータスを一元管理します
@@ -16,6 +18,17 @@ public final class StatusManage {
 	 */
 	private static ArrayList<Player> playerList;
 	
+	
+	/**
+	 * 投票メソッドインスタンスを保持します 
+	 */
+	private static VoteLogic voteLogic;
+	
+	
+	/**
+	 * 投票メソッドインスタンスを保持します 
+	 */
+	private static ActionLogic actionLogic;
 	
 	/**
 	 * ターン数を表すプロパティ
@@ -46,18 +59,6 @@ public final class StatusManage {
 	 * @type String
 	 */
 	private static String gameResultMessage = "";
-	
-	
-	/**
-	 * 全プレイヤーの投票数
-	 */
-	private static volatile int sizeVote;
-
-	
-	/**
-	 * 全プレイヤーのアクション数
-	 */
-	private static volatile int sizeAction;
 	
 	
 	/**
@@ -110,15 +111,13 @@ public final class StatusManage {
 		dayOrNight = false;
 		message = "";
 		gameResultMessage = "";
-		sizeVote = 0;
-		sizeAction = 0;
 		sizeAliveWerewolf = 0;
 		sizeAliveHuman = 0;
 	}
 	
 	
 	/**
-	 * 
+	 * プレイヤーリストを返します。
 	 * @return playerList
 	 */
 	public static ArrayList<Player> getPlayerList() {
@@ -142,69 +141,11 @@ public final class StatusManage {
 	
 	
 	/**
-	 *　各プレイヤーの投票結果を集計し、一番票の多いプレイヤーの死亡フラグをONにします。
-	 *　戻り値として、処刑されたプレイヤーのインスタンスを返します。
-	 * [ToDo]投票数が同じ場合には再投票が実施されるように修正
-	 * @returnPlayer
-	 */
-	public static Player voteResult(){
-		
-		Player executedPlayer = null;
-		int maxVotesCast = 0;
-		for (Player player : playerList) 
-			if (player.isDeadFlag() == false && maxVotesCast < player.getVotesCast()) {
-				maxVotesCast = player.getVotesCast();
-				executedPlayer = player;
-			} else 
-			if (player.isDeadFlag() == false && maxVotesCast == player.getVotesCast()) {
-				
-			}
-		
-		executedPlayer.setDeadFlag(true);
-		setMessage(executedPlayer.getPlayerName() + "さんが処刑されました。");
-		
-		return executedPlayer;
-		
-	}
-	
-	
-	/**
-	 *　各プレイヤーの投票結果を集計し、一番票の多いプレイヤーの死亡フラグをONにします。
-	 *　戻り値として、殺害されたプレイヤーのインスタンスを返します。
-	 * @returnPlayer
-	 */
-	public static Player actionResult(){
-		
-		Player killedPlayer = null;
-		int maxVotesCast = 0;
-		for (Player player : playerList) 
-			if (player.isDeadFlag() == false && maxVotesCast < player.getTargetByWerewolf()) {
-				maxVotesCast = player.getVotesCast();
-				killedPlayer = player;
-			} else 
-			if (player.isDeadFlag() == false && maxVotesCast == player.getTargetByWerewolf()) {
-				
-			}
-		
-		if (killedPlayer != null) { 
-			killedPlayer.setDeadFlag(true);
-			setMessage(killedPlayer.getPlayerName() + "さんが殺害されました。");
-		} else {
-			setMessage("何事もなく朝を迎えました。");
-		}
-		
-		return killedPlayer;
-		
-	}
-	
-	
-	/**
 	 * 全プレイヤーの投票数及び投票結果を初期化します。
 	 * 
 	 */
 	public static void resetVotesCastWithAllPlayer() {
 		
-		StatusManage.sizeVote = 0;
 		for (Player player : playerList) 
 			player.resetVotesCast();
 		
@@ -212,12 +153,11 @@ public final class StatusManage {
 	
 	
 	/**
-	 * 全プレイヤーの投票数及び投票結果を初期化します。
+	 * 全プレイヤーの投票結果を初期化します。
 	 * 
 	 */
 	public static void resetTargetByWolfWithAllPlayer() {
 		
-		StatusManage.sizeAction = 0;
 		for (Player player : playerList) 
 			player.resetTargetByWerewolf();
 		
@@ -275,6 +215,7 @@ public final class StatusManage {
 		
 	}
 	
+	
 	/**
 	 * 生存している人種の数を計算し、プロパティに結果を保持します。
 	 */
@@ -305,7 +246,7 @@ public final class StatusManage {
 	 */
 	private static boolean isAliveFox() {
 		for (Player player:playerList) {
-			if (player.getRole().getRoleName() == "Fox" && player.isDeadFlag() == false) {
+			if (player.getRole().getRoleName() == RoleName.FOX && player.isDeadFlag() == false) {
 				return true;
 			}
 		}
@@ -330,23 +271,6 @@ public final class StatusManage {
 	 */
 	public static void setMessage(String message) {
 		StatusManage.message = message;
-	}
-
-	
-	/**
-	 * 投票総数を返します。
-	 * @return　sizeVote
-	 */
-	public static int getSizeVote() {
-		return sizeVote;
-	}
-
-	
-	/**
-	 * 投票総数を＋１します。
-	 */
-	public static void incrementSizeVote() {
-		StatusManage.sizeVote += 1;
 	}
 
 	
@@ -409,19 +333,44 @@ public final class StatusManage {
 
 	
 	/**
-	 * 夜に行動したプレイヤーの総数を返します。
+	 * 投票ロジックのインスタンスを返します。
+	 * インスタンスがない場合は、新しいインスタンスを生成します。
 	 * @return
 	 */
-	public static int getSizeAction() {
-		return sizeAction;
+	public static synchronized VoteLogic getVoteLogic() {
+		if (voteLogic == null)
+			voteLogic = new VoteLogic();
+		return voteLogic;
+	}
+
+
+	/**
+	 * 投票ロジックのインスタンスの参照をnullで上書きします。
+	 * 投票ロジックが不要になったタイミングで使用してください。
+	 */
+	public static void initVoteLogic() {
+		voteLogic = null;
+	}
+
+
+	/**
+	 * 行動ロジックのインスタンスを返します。
+	 * インスタンスがない場合は、新しいインスタンスを生成します。
+	 * @return
+	 */
+	public static synchronized ActionLogic getActionLogic() {
+		if (actionLogic == null)
+			actionLogic = new ActionLogic();
+		return actionLogic;
 	}
 
 	
 	/**
-	 * 夜に行動したプレイヤー総数を＋１します。
+	 * 行動ロジックのインスタンスの参照をnullで上書きします。
+	 * 行動ロジックが不要になったタイミングで使用してください。
 	 */
-	public static void incrementSizeAction() {
-		StatusManage.sizeAction += 1;
+	public static void initActionLogic() {
+		actionLogic = null;
 	}
 
 }

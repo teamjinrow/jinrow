@@ -6,13 +6,7 @@ package model;
  * @author Y.tachibana
  *
  */
-final class Werewolf extends AbstractRole {
-	
-	
-	/**
-	 * 役職名：人狼
-	 */
-	private final String roleName = "Werewolf";
+final class Werewolf implements Role {
 	
 	
 	/**
@@ -41,8 +35,8 @@ final class Werewolf extends AbstractRole {
 	 * 役職名を取得します。
 	 * @return roleName
 	 */
-	public String getRoleName() {
-		return roleName;
+	public RoleName getRoleName() {
+		return RoleName.WEREWOLF;
 	}
 
 

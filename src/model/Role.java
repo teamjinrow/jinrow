@@ -10,6 +10,24 @@ package model;
 public interface Role {
 	
 	
+	/**
+	 * 役職名の一覧をまとめた定数
+	 * VILLAGER:村人
+	 * WEREWOLF:人狼
+	 * SEER:占い師
+	 * PSYCHIC:霊媒師
+	 * HUNTER:狩人
+	 * FOX:妖狐
+	 * @author Y.tachibana
+	 */
+	enum RoleName {
+		VILLAGER,
+		WEREWOLF,
+	    SEER,
+		PSYCHIC,
+		HUNTER,
+		FOX,
+	}
 	
 	/**
 	 * 陣営をまとめた定数
@@ -28,21 +46,15 @@ public interface Role {
 	
 	
 	/**
-	 * 人狼だと疑われるプレイヤーに票を入れる投票メソッドです。
-	 */
-	void vote(Player votedPlayer);
-	
-	
-	/**
-	 * 夜に行うアクションメソッドです。
-	 */
-	void synchAction(Player player, Player targetPlayer);
-	
-	
-	/**
 	 * 夜に行うアクションメソッドです。
 	 */
 	void act(Player targetPlayer);
+	
+	
+	/**
+	 * 役職名を返すメソッド
+	 */
+	RoleName getRoleName();
 	
 	
 	/**
@@ -55,12 +67,6 @@ public interface Role {
 	 * 役職の人種を返すメソッド
 	 */
 	Race getRace();
-	
-	
-	/**
-	 * 役職名を返すメソッド
-	 */
-	String getRoleName();
 	
 
 }

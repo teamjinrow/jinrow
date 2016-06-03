@@ -3,6 +3,10 @@ package model;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
+import model.Role.RoleName;
 
 /**
  * 役割を割り当てるためのクラスです。
@@ -24,6 +28,7 @@ public enum AssignRole {
 			new Werewolf(),
 	}; 
 	
+	private static CyclicBarrier barrier;
 	
 	/**
 	 * ゲームプレイ時の役職をまとめたリスト
@@ -35,14 +40,6 @@ public enum AssignRole {
 	 * ゲームプレイ時点の役職リストのサイズ（すなわちプレイヤーの参加人数）
 	 */
 	private static int sizeRole;
-	
-	
-	/**
-	 * 役職を割り当てたプレイヤー数を返します。
-	 * 参加プレイヤー全てに役職を割り振ったかどうかを判別するために使用します。
-	 */
-	private static int countAssignedRole = 0;
-	
 	
 	/**
 	 * インスタンス化と同時に役職の配列をリストで取得
@@ -59,24 +56,18 @@ public enum AssignRole {
 	 */
 	public static void assignRole(Player player) {
 		
-		synchronized (roleList) {
+		// サイクリックバリアーのインスタンスを取得
+		getCyclicBarrier();
+		try {
 			Collections.shuffle(roleList);
 			Role assignedRole = roleList.remove(0);
 			player.setRole(assignedRole);
-			countAssignedRole += 1;
-			
-			//　プレイヤー全員の役職が決まるまで待機
-			while (sizeRole != countAssignedRole) 
-				try {
-					roleList.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			roleList.notifyAll();
-					
+			barrier.await();
+		} catch (InterruptedException | BrokenBarrierException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-
+		
 	}
 
 	
@@ -88,6 +79,7 @@ public enum AssignRole {
 		return roleList;
 	}
 	
+	
 	/**
 	 * 役職リストを設定します。
 	 * リストを初期化した上で、新たな役職をリストに設定します。
@@ -98,7 +90,6 @@ public enum AssignRole {
 	public static LinkedList<Role> setRoleList(int sizeVillager, int sizeWerewolf) {
 		//役職リストを初期化
 		roleList.clear();
-		countAssignedRole = 0;
 		addVillger(sizeVillager);
 		addWerewolf(sizeWerewolf);
 		sizeRole = roleList.size();
@@ -127,12 +118,12 @@ public enum AssignRole {
 	
 	
 	/**
-	 * 役職リストの人狼の数を返します
+	 * 役職リストの村人の数を返します
 	 */
 	public static int getSizeVillager() {
 		int sizeVillager = 0;
 		for (Role role: roleList)
-			if (role.getRoleName().equals("Villager"))
+			if (role.getRoleName() == RoleName.VILLAGER)
 				sizeVillager ++;
 			
 		return sizeVillager;
@@ -146,11 +137,24 @@ public enum AssignRole {
 	public static int getSizeWerewolf() {
 		int sizeWerewolf = 0;
 		for (Role role: roleList)
-			if (role.getRoleName().equals("Werewolf"))
+			if (role.getRoleName() == RoleName.WEREWOLF)
 				sizeWerewolf ++;
 			
 		return sizeWerewolf;
 		
+	}
+	
+	
+	/**
+	 * このクラスのフィールドであるサイクリックバリヤーのインスタンスを取得します。
+	 * フィールドに値がnullの場合は、sizeRoleの数値分のサイクリックバリヤーを作成しそのインスタンスを変えします。
+	 * @return
+	 */
+	private static synchronized CyclicBarrier getCyclicBarrier() {
+		if (barrier == null) {
+			barrier = new CyclicBarrier(sizeRole);
+		}
+		return barrier;
 	}
 	
 	
