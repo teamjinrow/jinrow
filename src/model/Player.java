@@ -22,13 +22,18 @@ public final class Player {
 	 */
 	private Role role;
 	
+	/**
+	 * 生存、死亡の列挙型
+	 * @author Y.tachibana
+	 *
+	 */
+	public enum PlayerStatus {DEAD,ALIVE}
 	
 	/**
-	 * 死亡フラグ
-	 * true:死亡　false:生存 
-	 * @type boolean
+	 * 生存の有無を表すプレイヤーステータス
+	 * @type PlayerStatus
 	 */
-	private boolean deadFlag;
+	private PlayerStatus playerStatus;
 	
 	
 	/**
@@ -51,7 +56,7 @@ public final class Player {
 	 */
 	public Player(String playerName) {
 		this.playerName = playerName;
-		this.deadFlag = false;
+		this.playerStatus = PlayerStatus.ALIVE;
 		
 	}
 	
@@ -84,24 +89,19 @@ public final class Player {
 
 	
 	/**
-	 * 死亡フラグを取得します。
-	 * false:生存
-	 * true:死亡
+	 * プレイヤーステータスを取得します。
 	 * @return deadFlag
 	 */
-	public boolean isDeadFlag() {
-		return deadFlag;
+	public PlayerStatus getPlayerStatus() {
+		return playerStatus;
 	}
 
 	
 	/**
-	 * 死亡フラグを設定します。
-	 * false:生存
-	 * true:死亡
-	 * @param deadFlag
+	 * プレイヤーステータスを死亡に設定します。
 	 */
-	public void setDeadFlag(boolean deadFlag) {
-		this.deadFlag = deadFlag;
+	public void setDead() {
+		this.playerStatus = PlayerStatus.DEAD;
 	}
 	
 	

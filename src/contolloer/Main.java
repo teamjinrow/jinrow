@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import model.Player;
+import model.Player.PlayerStatus;
+import model.Role.RoleName;
 import model.StatusManage;
+import model.StatusManage.Phase;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -70,6 +73,13 @@ public class Main extends HttpServlet {
 			StatusManage.initActionLogic();
 			
 		}
+		
+		//画面制御に使用する列挙型の定数を設定
+		req.setAttribute("DEAD", PlayerStatus.DEAD);
+		req.setAttribute("ALIVE", PlayerStatus.ALIVE);
+		req.setAttribute("WEREWOLF", RoleName.WEREWOLF);
+		req.setAttribute("昼", Phase.昼);
+		req.setAttribute("夜", Phase.夜);
 				
 		//表示するメッセージを設定
 		req.setAttribute("message", StatusManage.getMessage());
@@ -81,16 +91,15 @@ public class Main extends HttpServlet {
 		req.setAttribute("turn", StatusManage.getTurn());
 				
 		//昼または夜の設定
-		req.setAttribute("day_or_night", StatusManage.isDayOrNight());
+		req.setAttribute("phase", StatusManage.getPhase());
 
 		RequestDispatcher rd = null;
-		
 		
 		//メイン画面に遷移
 		rd = req.getRequestDispatcher("/view/main.jsp");
 		
 		//死亡フラグがonならゲームオーバー画面に遷移
-		if (player.isDeadFlag()) 
+		if (player.getPlayerStatus() == PlayerStatus.DEAD )
 			rd = req.getRequestDispatcher("/view/gameover.jsp");
 		
 		//ゲーム結果メッセージが空欄でない場合は、結果画面に遷移

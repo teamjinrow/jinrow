@@ -9,33 +9,37 @@
 <body>
 <h1>
 	<c:out value="${turn}"/>日目 
-	<c:if test="${day_or_night == false}">　昼</c:if>
-	<c:if test="${day_or_night == true}">　夜</c:if>
+	<c:out value="${phase}"/> 
 </h1>
 <div>
 	あなた：<c:out value="${main_player.playerName}"/>
+	役割：<c:out value="${main_player.role.roleName}"/>
 </div>
 <c:forEach var="player" items="${player_list}">
 <form action="Main" method="post">
-<c:if test="${player.playerName != player_name}">
+<c:if test="${player.playerName != main_player.playerName}">
    <p>
    ユーザ名：<c:out value="${player.playerName}"/>
-   ステータス：<c:out value="${player.deadFlag}"/>
-   <c:if test="${player.deadFlag == false}">
-	   <c:if test="${day_or_night == false}">
+   ステータス：<c:out value="${player.playerStatus}"/>
+   <c:if test="${player.playerStatus == ALIVE}">
+	   <c:if test="${phase == 昼}">
 	   　　<input type="hidden" name="voted_player" value="${player.playerName}"/>
 	   </c:if>
-	   <c:if test="${day_or_night == true}">
+	   <c:if test="${phase == 夜}">
 	   　　<input type="hidden" name="target_player" value="${player.playerName}"/>
 	   </c:if>
 	   <input type="hidden" name="player_name" value="${main_player.playerName}"/>
 	   <c:if test="${player.playerName != main_player.playerName}">
-	   　　<c:if test="${day_or_night == false}">
+	   　　<c:if test="${phase == 昼}">
 	       　<input type="submit" value="この人物に投票する"/>
 	   　　</c:if>
-	      <c:if test="${day_or_night == true &&
-	                  !(main_player.role.roleName == WEREWOLF && player.role.roleName == WEREWOLF) }">
-	       　<input type="submit" value="アクション"/>
+	      <c:if test="${phase == 夜}">
+		     <c:if test="${main_player.role.roleName == WEREWOLF && player.role.roleName == WEREWOLF}">
+		     	<c:out value="${player.role.roleName}"/>
+		     </c:if>
+		     <c:if test="${main_player.role.roleName != WEREWOLF || player.role.roleName != WEREWOLF}">
+		     	<input type="submit" value="アクション"/>
+		     </c:if>
 	   　　</c:if>
 	   </c:if>
    </c:if>

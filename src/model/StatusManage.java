@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 
+import model.Player.PlayerStatus;
 import model.Role.RoleName;
 
 /**
@@ -39,12 +40,19 @@ public final class StatusManage {
 	
 	
 	/**
-	 * 昼の行動、夜の行動を区別するためのプロパティ
-	 * 昼：false
-	 * 夜：true
+	 * 昼、夜の列挙型
+	 * @author Y.tachibana
+	 *
+	 */
+	public enum Phase{昼,夜}
+	
+	
+	/**
+	 * フェーズ管理プロパティ
+	 * 取りうる値は昼、夜
 	 * @type boolean
 	 */
-	private static boolean dayOrNight = false;
+	private static Phase phase = Phase.昼;
 
 	
 	/**
@@ -108,7 +116,7 @@ public final class StatusManage {
 	public static void reset() {
 		playerList = new ArrayList<Player>();
 		turn = 1;
-		dayOrNight = false;
+		phase = Phase.昼;
 		message = "";
 		gameResultMessage = "";
 		sizeAliveWerewolf = 0;
@@ -208,7 +216,7 @@ public final class StatusManage {
 		
 		int sizeAlivePlayer = 0;
 		for (Player player:playerList) 
-			if (player.isDeadFlag() == false)
+			if (player.getPlayerStatus() == PlayerStatus.ALIVE)
 				sizeAlivePlayer += 1; 
 		
 		return sizeAlivePlayer;
@@ -226,7 +234,7 @@ public final class StatusManage {
 		sizeAliveWerewolf = 0;
 		
 		for (Player player: playerList) {
-			if (player.isDeadFlag()) 
+			if (player.getPlayerStatus() == PlayerStatus.DEAD) 
 				continue;
 			switch (player.getRole().getRace()) {
 			case HUMAN:
@@ -246,7 +254,7 @@ public final class StatusManage {
 	 */
 	private static boolean isAliveFox() {
 		for (Player player:playerList) {
-			if (player.getRole().getRoleName() == RoleName.FOX && player.isDeadFlag() == false) {
+			if (player.getRole().getRoleName() == RoleName.FOX && player.getPlayerStatus() == PlayerStatus.ALIVE) {
 				return true;
 			}
 		}
@@ -311,24 +319,20 @@ public final class StatusManage {
 
 	
 	/**
-	 * 夜か昼かをブール値で返します。
-	 * false:昼
-	 * true:夜
-	 * @return
+	 * フェーズ（昼・夜）を返します。
+	 * @return phase
 	 */
-	public static boolean isDayOrNight() {
-		return dayOrNight;
+	public static Phase getPhase() {
+		return phase;
 	}
 
 	
 	/**
-	 * 夜か昼かをブール値で設定します。
-	 * false:昼
-	 * true:夜
-	 * @param dayOrNight
+	  フェーズ（昼・夜）を設定します。
+	 * @param Phase
 	 */
-	public static void setDayOrNight(boolean dayOrNight) {
-		StatusManage.dayOrNight = dayOrNight;
+	public static void setPhase(Phase phase) {
+		StatusManage.phase = phase;
 	}
 
 	
